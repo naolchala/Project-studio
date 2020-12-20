@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node-dev Server/index.ts"
+    "dev": "concurrently \"tsc -w \" \" nodemon dist/index.js \""
   },
   "dependencies": {
     "body-parser": "^1.19.0",

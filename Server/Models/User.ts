@@ -1,6 +1,5 @@
-import Mongoose from "mongoose";
+import {Schema, Model, Document, model} from "mongoose";
 
-const Schema = Mongoose.Schema;
 
 const UserSchema = new Schema({
     fullname: {
@@ -9,6 +8,7 @@ const UserSchema = new Schema({
     },
     email: {
         type: String,
+        unique: true,
         required: true,
     },
     password: {
@@ -18,15 +18,13 @@ const UserSchema = new Schema({
 })
 
 
-interface UserInfo {
-    _id: string,
+export interface UserInfo extends Document {
     fullname: string,
     email: string,
     password: string,
-    __v: number
 }
 
 
-const UserModel: Mongoose.Model<Mongoose.Document<UserInfo>, {}> = Mongoose.model("Users", UserSchema);
+const UserModel: Model<UserInfo> = model("Users", UserSchema);
 
 module.exports = UserModel;

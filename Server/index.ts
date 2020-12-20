@@ -1,5 +1,5 @@
 import Express from "express";
-import Mongoose from "mongoose";
+import {connect, } from "mongoose";
 import cors from "cors";
 import bodyParser from "body-parser";
 import {MongoUrl} from "./Config/config";
@@ -7,7 +7,7 @@ import {MongoUrl} from "./Config/config";
 const app = Express();
 const Users = require("./Routes/Login");
 
-Mongoose.connect(MongoUrl, {
+connect(MongoUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => console.log("Mongo Connected")).catch(err => console.log(err))
