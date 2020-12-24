@@ -5,7 +5,7 @@ import Navbar from "../Components/Login/LoginNavbar/Navbar";
 
 const Login: FunctionComponent = () => {
     const [formOpened, setOpenForm] = useState(false);
-    const [ModalType, setModalType] = useState("login");
+    const [ModalType, setModalType] = useState("");
 
     const OpenForm = () => {
         setOpenForm((formOpened) => !formOpened);

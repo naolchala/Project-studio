@@ -3,6 +3,7 @@ import { connect } from "mongoose";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { MongoUrl } from "./Config/config";
+import path from "path";
 
 // Importing
 const app = Express();
@@ -28,13 +29,13 @@ app.use("/Users/", Users);
 app.use("/Projects/", Projects);
 app.use("/Stages/", Stages);
 app.use("/Tasks/", Tasks);
-
-app.get("/:name", (req, res) => {
-    const name: string = req.params.name;
-    res.send(`<h1>Welcome Mr. ${name}</h1>`);
-});
+app.use(Express.static(path.join(__dirname, "../FrontBuild")));
 
 const port: number = 5000;
+
+app.get("/", (req, res) => {
+    res.sendFile("index.html");
+});
 
 app.listen(port, () => {
     console.log(`listening on port ${port}`);

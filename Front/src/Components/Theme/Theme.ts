@@ -6,4 +6,9 @@ export const GlobalTheme = {
         Shade3: "#f1faee",
     },
     secondaryColor: "#e63946",
+    secondaryShades: {
+        Shade1: "#cf333f",
+        Shade2: "#b82e38",
+        Shade3: "#e63946",
+    },
 };

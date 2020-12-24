@@ -1,9 +1,17 @@
-import React, { Dispatch, FunctionComponent, SetStateAction } from "react";
+import React, {
+    Dispatch,
+    FormEvent,
+    FunctionComponent,
+    SetStateAction,
+    useState,
+} from "react";
 import styled, { StyledComponent } from "styled-components";
 import { CSSTransition } from "react-transition-group";
 import { MdClose } from "react-icons/md";
 import { GlobalTheme } from "../../Theme/Theme";
-import { Button } from "../../Button/Button";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../../../Data/Actions/UserAuth";
 
 interface loginFormProps {
     isOpened: boolean;
@@ -41,39 +49,112 @@ const Form: FunctionComponent<loginFormProps> = ({
                         Sign Up
                     </SwitchButton>
                 </SwitchContainer>
-
-                <CSSTransition
-                    timeout={300}
-                    in={formType == "login"}
-                    unmountOnExit
-                    mountOnEnter
-                >
-                    <InputContainerForm>
-                        <Input type="text" placeholder="Email"></Input>
-                        <Input type="password" placeholder="Password"></Input>
-                        <SubmitButton type="submit">Login</SubmitButton>
-                    </InputContainerForm>
-                </CSSTransition>
-                <CSSTransition
-                    in={formType == "signIn"}
-                    timeout={300}
-                    unmountOnExit
-                    mountOnEnter
-                >
-                    <InputContainerForm>
-                        <Input type="text" placeholder="Fullname"></Input>
-                        <Input type="text" placeholder="Email"></Input>
-                        <Input type="password" placeholder="Password"></Input>
-                        <Input
-                            type="password"
-                            placeholder="Confirm Password"
-                        ></Input>
-                        <SubmitButton type="submit">
-                            Create Account
-                        </SubmitButton>
-                    </InputContainerForm>
-                </CSSTransition>
+                <LoginForm show={formType == "login"} />
+                <SignUpForm show={formType == "signIn"} />
             </FormContainer>
+        </CSSTransition>
+    );
+};
+
+const LoginForm: FunctionComponent<{ show: boolean }> = (props) => {
+    const [email, setemail] = useState("");
+    const [password, setpassword] = useState("");
+    const dispatch = useDispatch();
+
+    const login = (e: FormEvent) => {
+        e.preventDefault();
+        axios
+            .post("/Users/login", { email: email, password: password })
+            .then((res) => {
+                const { token, user } = res.data;
+                window.localStorage.setItem("token", token);
+                dispatch(loginUser(user));
+            });
+    };
+
+    return (
+        <CSSTransition timeout={300} in={props.show}>
+            <InputContainerForm onSubmit={(e) => login(e)}>
+                <Input
+                    value={email}
+                    onChange={(e) => setemail(e.target.value)}
+                    type="email"
+                    placeholder="Email"
+                ></Input>
+                <Input
+                    value={password}
+                    onChange={(e) => setpassword(e.target.value)}
+                    type="password"
+                    placeholder="Password"
+                ></Input>
+                <SubmitButton type="submit">Login</SubmitButton>
+            </InputContainerForm>
+        </CSSTransition>
+    );
+};
+const SignUpForm: FunctionComponent<{ show: boolean }> = (props) => {
+    const [fullname, setname] = useState("");
+    const [email, setemail] = useState("");
+    const [pass, setpass] = useState("");
+    const [repass, setrepass] = useState("");
+    const dispatch = useDispatch();
+
+    const signup = (e: FormEvent) => {
+        e.preventDefault();
+        if (fullname !== "" && email !== "" && pass !== "" && repass === pass) {
+            axios
+                .post("/Users/create", {
+                    fullname: fullname,
+                    email: email,
+                    password: pass,
+                })
+                .then((res) => {
+                    axios
+                        .post("/Users/login", {
+                            email: email,
+                            password: pass,
+                        })
+                        .then((res) => {
+                            const { token, user } = res.data;
+                            window.localStorage.setItem("token", token);
+                            dispatch(loginUser(user));
+                        });
+                })
+                .catch((err) => {});
+        } else {
+            console.log(":{");
+        }
+    };
+
+    return (
+        <CSSTransition in={props.show} timeout={300}>
+            <InputContainerForm onSubmit={signup}>
+                <Input
+                    value={fullname}
+                    onChange={(e) => setname(e.target.value)}
+                    type="text"
+                    placeholder="Fullname"
+                ></Input>
+                <Input
+                    value={email}
+                    onChange={(e) => setemail(e.target.value)}
+                    type="email"
+                    placeholder="Email"
+                ></Input>
+                <Input
+                    value={pass}
+                    onChange={(e) => setpass(e.target.value)}
+                    type="password"
+                    placeholder="Password"
+                ></Input>
+                <Input
+                    value={repass}
+                    onChange={(e) => setrepass(e.target.value)}
+                    type="password"
+                    placeholder="Confirm Password"
+                ></Input>
+                <SubmitButton type="submit">Create Account</SubmitButton>
+            </InputContainerForm>
         </CSSTransition>
     );
 };
@@ -162,10 +243,7 @@ const InputContainerForm = styled.form`
     opacity: 0;
     transition: all 300ms;
     position: absolute;
-    &.enter {
-        transform: scale(0);
-        opacity: 0;
-    }
+
     &.enter-done {
         opacity: 1;
         position: relative;
@@ -215,6 +293,14 @@ const SubmitButton = styled.button`
     padding: 8px 25px;
     transition: all 0.2s;
     border-radius: 6px;
+    background-blend-mode: darken;
+
+    &:hover {
+        background: ${GlobalTheme.secondaryShades.Shade2};
+    }
+    &:active {
+        background: ${GlobalTheme.secondaryShades.Shade3};
+    }
 `;
 
 export default Form;

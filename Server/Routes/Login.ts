@@ -37,7 +37,11 @@ router.get("/", VerifyToken, async (req, res) => {
             res.sendStatus(403);
         } else {
             console.log(authData);
-            await User.find({}).then((docs) => res.send(docs));
+            await User.findOne({
+                _id: authData.user._id,
+            }).then((docs) =>
+                res.send({ userId: docs?._id, fullname: docs?.fullname })
+            );
         }
     });
 });
@@ -53,11 +57,17 @@ router.post("/login", async (req, res) => {
             const user: any = doc;
 
             // Generate Token
-            jwt.sign({ user }, SecretKey, (err, token) => {
+            jwt.sign({ user }, SecretKey, (err: any, token: any) => {
                 if (err) {
                     res.sendStatus(500);
                 } else {
-                    res.send({ token });
+                    res.send({
+                        token: token,
+                        user: {
+                            userId: user._id,
+                            fullname: user.fullname,
+                        },
+                    });
                 }
             });
         })
@@ -75,7 +85,7 @@ router.post("/create", async (req, res) => {
     await newUser
         .save()
         .then(async () => {
-            res.send(await User.find({}));
+            res.send({ success: true });
         })
         .catch((err) => res.status(403).send(err));
 });
